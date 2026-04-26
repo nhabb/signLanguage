@@ -102,6 +102,7 @@ def train_random_forest(X_train, X_test, y_train, y_test, le):
         "min_samples_split": [2, 3],
         "max_features":      ["sqrt", "log2"],
     }
+
     rf = GridSearchCV(
         RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1),
         param_grid, cv=3, scoring="f1_macro", n_jobs=-1

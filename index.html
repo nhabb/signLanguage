@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ASL Translator</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #111;
+      color: white;
+    }
+
+    video {
+      width: 500px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    .output {
+      font-size: 40px;
+      margin-top: 20px;
+      color: #00ffcc;
+    }
+
+    .conf {
+      font-size: 20px;
+      color: #aaa;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Sign Language Translator</h1>
+
+<video id="video" autoplay></video>
+<canvas id="canvas" style="display:none;"></canvas>
+
+<div class="output" id="letter">-</div>
+<div class="conf" id="conf">0.00</div>
+
+<script>
+const video = document.getElementById("video")
+const canvas = document.getElementById("canvas")
+const ctx = canvas.getContext("2d")
+
+const letterBox = document.getElementById("letter")
+const confBox = document.getElementById("conf")
+
+// ================================
+// CAMERA START
+// ================================
+navigator.mediaDevices.getUserMedia({ video: true })
+.then(stream => {
+    video.srcObject = stream
+})
+
+// ================================
+// SEND FRAME LOOP
+// ================================
+async function sendFrame() {
+
+    if (video.readyState !== 4) {
+        requestAnimationFrame(sendFrame)
+        return
+    }
+
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+    const image = canvas.toDataURL("image/jpeg", 0.7)
+
+    try {
+        const res = await fetch("http://127.0.0.1:8000/predict", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                image: image
+            })
+        })
+
+        const data = await res.json()
+
+        if (data.letter) {
+            letterBox.innerText = data.letter
+            confBox.innerText = data.confidence.toFixed(2)
+        } else {
+            letterBox.innerText = "-"
+            confBox.innerText = "0.00"
+        }
+
+    } catch (err) {
+        console.log("Error:", err)
+    }
+
+    setTimeout(() => {
+        requestAnimationFrame(sendFrame)
+    }, 200)
+}
+
+sendFrame()
+</script>
+
+</body>
+</html>
