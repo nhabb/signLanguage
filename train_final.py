@@ -7,7 +7,6 @@ with Multiple Models (Random Forest, MLP, Voting Classifier)
 import os, pickle, json              # os for folders, pickle to save model, json (not used much here)
 import numpy as np                  # math operations / arrays
 import pandas as pd                # handling CSV (data)
-from datetime import datetime      # time (not really used here)
 
 # machine learning tools
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier  # models
