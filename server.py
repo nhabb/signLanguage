@@ -21,15 +21,17 @@ app.add_middleware(
 
 def decode_image(base64_str):
     try:
+        #return if no data received 
         if base64_str is None:
             return None
 
-        # remove header if exists
+        # remove metadata header if exists
         if "," in base64_str:
             base64_str = base64_str.split(",")[1]
 
+        #convert the image into raw bytes
         img_bytes = base64.b64decode(base64_str)
-
+        #create a numpy array that will be used in the prediction
         np_arr = np.frombuffer(img_bytes, np.uint8)
 
         if len(np_arr) == 0:
